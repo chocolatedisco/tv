@@ -1,0 +1,46 @@
+//@version=4
+study("BANE_Future",overlay=false)
+
+symbol = input("BTC")
+mth = input("09")
+
+//先物の期日。四半期過ぎたらここら辺を書き換える
+date = (mth == "06") ? "0625" : (mth == "09") ? "0924" : (mth == "12") ? "1231" : "0924"
+to_time = (mth=="06") ? timestamp(2021,06, 25, 09, 00)  : (mth=="09") ? timestamp(2021,09, 24, 09, 00) : (mth=="12") ? timestamp(2021,12, 31, 09, 00)  : timestamp(2021,09, 24, 09, 00)  
+
+//--------------------------------------------
+now = time
+type=close
+
+//無期限先物がFR0.01%/8hで推移した場合のブレークイーブンとなるスプレッドに線を引く
+discount = (now-to_time)/(60*60*24*1000)*0.01*3*-1
+plot(discount,color=color.red,title="flat")
+
+//coinbase現物
+ba = security("COINBASE:"+ symbol +"USD",timeframe.period,type) 
+//BINANCE
+c1 = security("BINANCE:"+ symbol +"USDT",timeframe.period,type) 
+date_binance = mth=="12" ? "0924" : date //BINANCE12月限まだないからエラー起こす
+c2 = security("BINANCE:"+ symbol + "USDT_21"+ date_binance +"PERP",timeframe.period,type) //2022年になったら書き直さないと
+//OKEX
+a1 = security("OKEX:"+ symbol +"USDT",timeframe.period,type)
+a2 = security("OKEX:"+ symbol +"USDT3M",timeframe.period,type)
+//FTX
+b1 = security("FTX:"+ symbol +"USD",timeframe.period,type) 
+b2 = security("FTX:"+ symbol + date,timeframe.period,type) 
+//BYBIT
+d1 = security("BYBIT:"+ symbol +"USD",timeframe.period,type) 
+d2 = security("BYBIT:"+ symbol +"USD"+date,timeframe.period,type) 
+
+cl = 30 //透明度
+//乖離率の比較するペア設定
+bybit_kairi = d2/ba*100-100
+ftx_kairi = b2/b1*100-100
+binance_kairi = c2/c1*100-100
+okex_kairi = a2/a1*100-100
+
+plot(style=plot.style_columns, series=ftx_kairi,color=(ftx_kairi > 0) ? color.blue : color.blue,transp=cl,title="FTX")
+plot(style=plot.style_columns, series=binance_kairi,color=(binance_kairi > 0) ? color.orange : color.orange ,transp=cl,title="BINANCE")
+plot(style=plot.style_columns, series=bybit_kairi,color=(bybit_kairi>0) ? color.green : color.green ,transp=cl,title="BYBIT")
+avg = (bybit_kairi+ftx_kairi+binance_kairi)/3
+plot(style=plot.style_line, series=avg ,color=avg >0 ? color.white : color.white,title="Avg")

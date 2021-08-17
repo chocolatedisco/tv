@@ -1,0 +1,11 @@
+// version 1.0 just simply btcusdshorts and btcusdlongs together
+// see my other scripts for some cool stuff!
+
+//@version=3
+study("BTCUSTSHORTS BTCUSTLONGS - Bitfinex BTC Shorts & Longs")
+
+longst = pow(security("BITFINEX:BTCUSTLONGS", period, close),1.0)
+plot(longst, title='Bitfinex Longs T', color=green)
+
+shortst = pow(security("BITFINEX:BTCUSTSHORTS", period, close),1.0)
+plot(shortst, title='Bitfinex Shorts T', color=red)

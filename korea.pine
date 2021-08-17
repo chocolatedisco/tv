@@ -1,0 +1,11 @@
+//@version=3
+study("Bitcoin Japan and Korea Premium")
+
+bj = security("BITFLYER:BTCJPY", period, close)
+ju = security("FX_IDC:USDJPY", period, close)
+bk = security("KORBIT:BTCKRW", period, close)
+ku = security("FX_IDC:USDKRW", period, close)
+bu = security("BITFINEX:BTCUSD", period, close)
+
+plot(100*(bj/ju/bu-1), title='Japan Premium', color=#FF0000)
+plot(100*(bk/ku/bu-1), title='Korea Premium', color=#0000FF)
